@@ -24,17 +24,16 @@ export default function Hero() {
         />
       </video>
 
-      {/* Video Overlay */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        aria-hidden="true"
-      />
+{/* Cinematic Overlay */}
+<div
+  className="absolute inset-0 bg-black/35"
+  aria-hidden="true"
+/>
 
-      {/* Subtle Depth Gradient */}
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10"
-        aria-hidden="true"
-      />
+<div
+  className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50"
+  aria-hidden="true"
+/>
 
       {/* Content */}
       <div className="relative z-10 flex min-h-[680px] items-center justify-center px-6 py-24 sm:min-h-[720px] sm:px-8 lg:px-10">
@@ -82,7 +81,7 @@ export default function Hero() {
               href="/contact"
               className="group inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-950 transition-colors duration-200 hover:bg-neutral-100 sm:w-auto"
             >
-              Request a Quote
+              Get Your Free Quote
 
               <ArrowRight
                 className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
@@ -99,23 +98,54 @@ export default function Hero() {
           </div>
 
           {/* Trust Line */}
-          <div className="mt-7 flex items-center justify-center gap-2 text-sm text-white/75">
-            <span
-              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/15"
-              aria-hidden="true"
-            >
-              <Check
-                className="h-3 w-3 text-white"
-                strokeWidth={2.5}
-              />
-            </span>
+          {/* Reassurance */}
+<div className="mt-6 text-sm text-white/70">
+  Free consultation · No obligation · Cork &amp; surrounding areas
+</div>
 
-            <span>
-              Serving homeowners across Cork and surrounding areas.
-            </span>
-          </div>
+{/* Social Proof */}
+<div className="mt-7 flex flex-col items-center justify-center gap-2 sm:flex-row sm:gap-3">
+  <div
+    className="flex items-center gap-1"
+    aria-label="5 star Google rating"
+  >
+    {Array.from({ length: 5 }).map((_, index) => (
+      <span
+        key={index}
+        className="text-sm text-yellow-300"
+        aria-hidden="true"
+      >
+        ★
+      </span>
+    ))}
+  </div>
+
+  <span className="text-sm font-medium text-white/90">
+    5.0 on Google
+  </span>
+
+  <span className="hidden text-white/30 sm:inline">
+    ·
+  </span>
+
+  <span className="text-sm text-white/65">
+    Trusted by homeowners across Cork
+  </span>
+</div>
         </motion.div>
       </div>
+
+      {/* Scroll Cue */}
+<div className="absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-2 sm:flex">
+  <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/50">
+    Explore our work
+  </span>
+
+  <ArrowRight
+    className="h-3.5 w-3.5 rotate-90 text-white/50"
+    aria-hidden="true"
+  />
+</div>
     </section>
   );
 }
