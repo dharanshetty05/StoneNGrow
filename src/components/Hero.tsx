@@ -134,18 +134,6 @@ export default function Hero() {
 </div>
         </motion.div>
       </div>
-
-      {/* Scroll Cue */}
-<div className="absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-2 sm:flex">
-  <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/50">
-    Explore our work
-  </span>
-
-  <ArrowRight
-    className="h-3.5 w-3.5 rotate-90 text-white/50"
-    aria-hidden="true"
-  />
-</div>
     </section>
   );
 }
