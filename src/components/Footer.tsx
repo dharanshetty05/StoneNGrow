@@ -1,104 +1,75 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 
 const navigation = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Our Work", href: "/work" },
   { label: "About", href: "/about" },
+  { label: "Service Areas", href: "/#service-areas" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export default function Footer() {
   return (
-    <footer className="bg-neutral-950 text-white">
-      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
-        {/* Main Footer */}
-        <div className="grid gap-14 py-16 sm:py-20 lg:grid-cols-[1.4fr_0.7fr_0.9fr_0.8fr] lg:gap-12 lg:py-24">
-          {/* Brand */}
-          <div className="max-w-sm">
+    <footer className="group relative overflow-hidden bg-[#f4f1eb]">
+      <div className="relative z-10 mx-auto w-full max-w-[1400px] px-6 pb-10 pt-16 sm:px-8 md:px-10 lg:pb-12 lg:pt-20 xl:px-12">
+        {/* Main Footer Content */}
+        <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          {/* Brand and Copyright */}
+          <div className="shrink-0">
             <Link
               href="/"
-              className="inline-block text-xl font-semibold tracking-[-0.025em]"
+              className="inline-block text-left text-[17px] font-semibold tracking-[-0.035em] text-neutral-900 transition-opacity duration-200 hover:opacity-65 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f4f1eb] motion-reduce:transition-none"
             >
               Stone &amp; Grove Landscapes
             </Link>
 
-            <p className="mt-4 max-w-xs text-sm leading-6 text-white/55">
+            <p className="mt-5 text-[13px] leading-6 tracking-[-0.01em] text-neutral-500">
               Garden design and landscaping across Cork.
             </p>
+
+            <p className="mt-1 text-[13px] leading-6 tracking-[-0.01em] text-neutral-500">
+              © {new Date().getFullYear()} Stone &amp; Grove Landscapes.
+              All rights reserved.
+            </p>
           </div>
 
-          {/* Navigation */}
-          <div>
-            <p className="text-xs font-semibold tracking-[0.16em] text-white/40">
-              NAVIGATION
-            </p>
-
-            <nav className="mt-5 flex flex-col gap-3" aria-label="Footer navigation">
+          {/* Horizontal Navigation */}
+          <nav
+            aria-label="Footer navigation"
+            className="lg:pt-0.5"
+          >
+            <ul className="flex flex-wrap items-center gap-x-7 gap-y-5 sm:gap-x-8 lg:justify-end lg:gap-x-7 xl:gap-x-8">
               {navigation.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="w-fit text-sm text-white/70 transition-colors duration-200 hover:text-white"
-                >
-                  {item.label}
-                </Link>
+                <li key={item.label} className="shrink-0">
+                  <Link
+                    href={item.href}
+                    className="group/link relative inline-block text-left text-[14px] leading-5 tracking-[-0.01em] text-neutral-600 transition-colors duration-200 hover:text-neutral-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-900/30 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f4f1eb] motion-reduce:transition-none"
+                  >
+                    {item.label}
+
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-0 bg-neutral-900 transition-transform duration-200 ease-out group-hover/link:scale-x-100 group-focus-visible/link:scale-x-100 motion-reduce:transition-none"
+                    />
+                  </Link>
+                </li>
               ))}
-            </nav>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <p className="text-xs font-semibold tracking-[0.16em] text-white/40">
-              CONTACT
-            </p>
-
-            <div className="mt-5 flex flex-col gap-3 text-sm">
-              <a
-                href="tel:+353000000000"
-                className="w-fit text-white/70 transition-colors duration-200 hover:text-white"
-              >
-                021 XXX XXXX
-              </a>
-
-              <a
-                href="mailto:hello@stoneandgrove.ie"
-                className="w-fit text-white/70 transition-colors duration-200 hover:text-white"
-              >
-                hello@stoneandgrove.ie
-              </a>
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="lg:justify-self-end">
-            <p className="text-xs font-semibold tracking-[0.16em] text-white/40">
-              START A PROJECT
-            </p>
-
-            <Link
-              href="/contact"
-              className="group mt-5 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-950 transition-colors duration-200 hover:bg-neutral-200"
-            >
-              Request a Quote
-
-              <ArrowUpRight
-                className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                aria-hidden="true"
-              />
-            </Link>
-          </div>
+            </ul>
+          </nav>
         </div>
+        {/* Breathing Space */}
+        <div className="h-[clamp(5rem,10vw,9rem)]" />
+      </div>
 
-        {/* Bottom Bar */}
-        <div className="flex flex-col gap-4 border-t border-white/10 py-6 text-xs text-white/40 sm:flex-row sm:items-center sm:justify-between">
-          <p>
-            © {new Date().getFullYear()} Stone &amp; Grove Landscapes. All
-            rights reserved.
-          </p>
-
-          <p>Cork, Ireland</p>
-        </div>
+      {/* Oversized Background Wordmark */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-[-0.08em] select-none overflow-hidden whitespace-nowrap text-center"
+      >
+        <span className="inline-block text-[clamp(3rem,9.5vw,9rem)] font-semibold leading-[0.72] tracking-[-0.075em] text-neutral-900/[0.045] transition-[transform,color] duration-500 ease-out group-hover:-translate-y-1 group-hover:text-neutral-900/[0.065] motion-reduce:transition-none motion-reduce:transform-none">
+          Stone &amp; Grove
+        </span>
       </div>
     </footer>
   );
