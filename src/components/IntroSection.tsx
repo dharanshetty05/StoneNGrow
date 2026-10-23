@@ -2,17 +2,17 @@ import CountUp from "./CountUp";
 
 const stats = [
   {
-    value: 250,
+    value: 280,
     suffix: "+",
     label: "Gardens transformed across Cork",
   },
   {
-    value: 12,
+    value: 15,
     suffix: "+",
     label: "Years of landscaping experience",
   },
   {
-    value: 4.9,
+    value: 4.8,
     decimals: 1,
     prefix: "★ ",
     label: "Average customer rating",
