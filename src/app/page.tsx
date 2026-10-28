@@ -7,7 +7,7 @@ import Process from "@/components/Process";
 import ServiceArea from "@/components/ServiceArea";
 import ServicesSection from "@/components/ServicesSection";
 import TrustStrip from "@/components/TrustStrip";
-import StoneGroveNavbar from "@/components/ui/resizable-navbar";
+import StoneGroveNavbar from "@/components/resizable-navbar";
 import WhyStoneNGrow from "@/components/WhyStoneNGrow";
 
 export default function Home() {

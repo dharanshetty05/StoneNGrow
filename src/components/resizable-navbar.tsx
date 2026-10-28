@@ -90,7 +90,7 @@ export default function StoneGroveNavbar() {
             mass: 0.8,
           }}
           className={cn(
-            "relative hidden h-[68px] items-center rounded-full px-3 lg:flex",
+            "relative hidden h-17 items-center rounded-full px-3 lg:flex",
             "border border-white/50",
             "bg-[#F8F6F1]/90 backdrop-blur-xl",
             "shadow-[0_12px_40px_rgba(43,40,33,0.08)]",
