@@ -128,3 +128,87 @@
     @apply font-sans;
   }
 }
+
+
+
+/* StoneNGrow Services Infinite Carousel */
+
+.services-marquee-viewport {
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+
+.services-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: services-marquee 48s linear infinite;
+  will-change: transform;
+}
+
+.services-marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: stretch;
+  gap: 20px;
+  padding-right: 20px;
+}
+
+.services-marquee-card {
+  width: clamp(280px, 27vw, 370px);
+}
+
+.services-marquee-viewport:hover .services-marquee-track,
+.services-marquee-viewport:focus-within .services-marquee-track,
+.services-marquee-viewport:active .services-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes services-marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 639px) {
+  .services-marquee-track {
+    animation-duration: 42s;
+  }
+
+  .services-marquee-group {
+    gap: 14px;
+    padding-right: 14px;
+  }
+
+  .services-marquee-card {
+    width: 82vw;
+    max-width: 340px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .services-marquee-viewport {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .services-marquee-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .services-marquee-track {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+
+  .services-marquee-group[aria-hidden="true"] {
+    display: none;
+  }
+}
