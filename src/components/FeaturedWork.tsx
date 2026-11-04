@@ -1,8 +1,9 @@
+
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, MoveHorizontal } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -91,105 +92,361 @@ const projects: Project[] = [
   },
 ];
 
-export default function FeaturedWork() {
-  return (
-    <section className="bg-[#f7f6f2]">
-      <div className="mx-auto max-w-7xl px-6 py-24 sm:px-8 sm:py-32 lg:px-10 lg:py-40">
-        {/* Section Header */}
-        <div className="max-w-3xl">
-          <div className="flex items-center gap-3">
-            <span
-              className="h-px w-8 bg-neutral-900"
-              aria-hidden="true"
-            />
+const metadataClass =
+  "font-sans text-[10px] font-medium uppercase tracking-[0.17em]";
 
-            <p className="text-xs font-semibold tracking-[0.18em] text-neutral-600">
-              RECENT PROJECTS
-            </p>
+const bodyTextClass =
+  "font-sans text-sm leading-7 text-[#62695f] sm:text-[15px] sm:leading-8";
+
+const projectTitleClass =
+  "font-sans text-[clamp(1.8rem,2.8vw,2.75rem)] font-medium leading-[1.12] tracking-[-0.045em] text-[#25372b]";
+
+export default function FeaturedWork() {
+  const shouldReduceMotion = useReducedMotion();
+
+  const featured = projects[0];
+  const familyGarden = projects[1];
+  const patioGarden = projects[2];
+
+  if (
+    featured.type !== "before-after" ||
+    familyGarden.type !== "gallery" ||
+    patioGarden.type !== "gallery"
+  ) {
+    return null;
+  }
+
+  const reveal = {
+    hidden: {
+      opacity: 0,
+      y: shouldReduceMotion ? 0 : 24,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: shouldReduceMotion ? 0 : 0.7,
+        ease: "easeOut" as const,
+      },
+    },
+  };
+
+  return (
+    <section
+      id="projects"
+      aria-labelledby="projects-heading"
+      className="overflow-clip bg-[#f4f1eb] text-[#25372b]"
+    >
+      {/* -------------------------------------------------------------- */}
+      {/* SECTION INTRODUCTION                                           */}
+      {/* -------------------------------------------------------------- */}
+
+      <div className="mx-auto max-w-[1440px] px-5 pb-14 pt-24 sm:px-8 sm:pb-20 sm:pt-28 lg:px-14 lg:pb-24 lg:pt-36">
+        <motion.div
+          variants={reveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end"
+        >
+          <div>
+            <div className="mb-7 flex items-center gap-3">
+              <span className="h-px w-9 bg-[#71836a]" />
+
+              <span className={`${metadataClass} tracking-[0.22em] text-[#71836a]`}>
+                OUR SELECTED WORK
+              </span>
+            </div>
+
+            <h2
+              id="projects-heading"
+              className="max-w-3xl font-sans text-[clamp(2.8rem,5.5vw,5.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-[#25372b]"
+            >
+              Gardens shaped
+              <br />
+              around{" "}
+              <span className="font-medium italic text-[#71836a]">
+                living.
+              </span>
+            </h2>
           </div>
 
-          <h2 className="mt-6 max-w-2xl text-4xl font-semibold leading-[1.08] tracking-[-0.035em] text-neutral-950 sm:text-5xl">
-            See what a considered approach can do.
-          </h2>
+          <p className={`max-w-md lg:justify-self-end lg:pb-2 ${bodyTextClass}`}>
+            Every outdoor space has its own character. Explore a selection
+            of garden transformations shaped by thoughtful design,
+            considered materials and an appreciation for the outdoors.
+          </p>
+        </motion.div>
+
+        {/* SCROLL INDICATOR */}
+
+        <div className="mt-12 flex items-center justify-between border-t border-[#25372b]/15 pt-5">
+          <span className={`${metadataClass} text-[#85877d]`}>
+            A CLOSER LOOK AT OUR WORK
+          </span>
+
+          <span className="flex items-center gap-2 font-sans text-[10px] font-medium uppercase tracking-[0.15em] text-[#71836a]">
+            SCROLL TO EXPLORE
+            <span className="inline-block h-6 w-px animate-pulse bg-[#71836a] motion-reduce:animate-none" />
+          </span>
         </div>
+      </div>
 
-        {/* Projects */}
-        <div className="mt-16 space-y-24 lg:mt-24 lg:space-y-32">
-          {projects.map((project, index) => (
-            <motion.article
-              key={project.number}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{
-                duration: 0.6,
-                delay: index * 0.05,
-                ease: "easeOut",
-              }}
-            >
-              {/* Project Meta */}
-              <div className="mb-5 flex items-center justify-between">
-                <p className="text-xs font-semibold tracking-[0.16em] text-neutral-400">
-                  PROJECT {project.number}
-                </p>
+      {/* -------------------------------------------------------------- */}
+      {/* STICKY PROJECT STACK                                           */}
+      {/* -------------------------------------------------------------- */}
 
-                <p className="text-sm text-neutral-500">
-                  {project.location}
-                </p>
-              </div>
+      <div className="relative">
 
-              {/* Project Visual */}
-              {project.type === "before-after" ? (
-                <BeforeAfter
-                  before={project.before}
-                  after={project.after}
-                  during={project.during}
-                />
-              ) : (
-                <ProjectGallery images={project.images} />
-              )}
+        {/* PROJECT 01 */}
 
-              {/* Project Information */}
-              <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end lg:gap-12">
-                <div className="max-w-2xl">
-                  <h3 className="text-2xl font-semibold tracking-[-0.025em] text-neutral-950 sm:text-3xl">
-                    {project.title}
-                  </h3>
+        <motion.article
+          variants={reveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+          style={{ zIndex: 1 }}
+          className="relative bg-[#f4f1eb] lg:sticky lg:top-0 lg:h-svh lg:min-h-[680px] lg:max-h-[1000px]"
+        >
+          <div className="mx-auto flex min-h-full max-w-[1440px] flex-col px-5 py-12 sm:px-8 sm:py-14 lg:h-full lg:justify-center lg:px-14 lg:py-10">
 
-                  <p className="mt-3 max-w-xl text-base leading-7 text-neutral-600">
-                    {project.description}
-                  </p>
-                </div>
-
-                <Link
-                  href="/work"
-                  className="group inline-flex items-center gap-2 text-sm font-semibold text-neutral-900"
-                >
-                  View project
-
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-                    aria-hidden="true"
-                  />
-                </Link>
-              </div>
-            </motion.article>
-          ))}
-        </div>
-
-        {/* Section CTA */}
-        <div className="mt-20 border-t border-neutral-200 pt-10 sm:mt-24">
-          <Link
-            href="/work"
-            className="group inline-flex min-h-12 items-center gap-2 rounded-full bg-neutral-950 px-6 py-3 text-sm font-semibold text-white transition-colors duration-200 hover:bg-neutral-800"
-          >
-            View Our Work
-
-            <ArrowRight
-              className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1"
-              aria-hidden="true"
+            <ProjectMeta
+              number="01"
+              location={featured.location}
+              category="FEATURED TRANSFORMATION"
+              count="01 / 03"
             />
-          </Link>
+
+            <div className="mt-5 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.55fr_0.45fr] lg:items-center lg:gap-10">
+
+              {/* MAIN IMAGE */}
+
+              <div className="min-w-0">
+                <BeforeAfter
+                  before={featured.before}
+                  after={featured.after}
+                />
+              </div>
+
+              {/* PROJECT INFORMATION */}
+
+              <div className="flex flex-col justify-center lg:py-4">
+                <span className={`${metadataClass} mb-5 text-[#71836a]`}>
+                  GARDEN REDESIGN
+                </span>
+
+                <h3 className={projectTitleClass}>
+                  {featured.title}
+                </h3>
+
+                <p className={`mt-4 ${bodyTextClass}`}>
+                  {featured.description}
+                </p>
+
+                <div className="mt-7 h-px w-12 bg-[#71836a]" />
+
+                <p className="mt-4 font-sans text-xs leading-6 text-[#85877d]">
+                  A considered transformation, from the original space
+                  to the finished garden.
+                </p>
+              </div>
+            </div>
+
+            {/* BEFORE / DURING / AFTER */}
+
+            <div className="mt-6 grid grid-cols-3 gap-3 sm:mt-8 sm:gap-5 lg:mt-5 lg:max-w-[650px]">
+              <ProgressImage
+                src={featured.before}
+                alt="Original garden before transformation"
+                label="BEFORE"
+              />
+
+              <ProgressImage
+                src={featured.during}
+                alt="Garden during the transformation"
+                label="DURING"
+              />
+
+              <ProgressImage
+                src={featured.after}
+                alt="Completed modern garden transformation"
+                label="AFTER"
+              />
+            </div>
+          </div>
+        </motion.article>
+
+        {/* PROJECT 02 */}
+
+        <motion.article
+          variants={reveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+          style={{ zIndex: 2 }}
+          className="relative bg-[#f4f1eb] lg:sticky lg:top-0 lg:h-svh lg:min-h-[680px] lg:max-h-[1000px] lg:shadow-[0_-18px_50px_rgba(37,55,43,0.06)]"
+        >
+          <div className="mx-auto flex min-h-full max-w-[1440px] flex-col px-5 py-12 sm:px-8 sm:py-14 lg:h-full lg:justify-center lg:px-14 lg:py-10">
+
+            <ProjectMeta
+              number="02"
+              location={familyGarden.location}
+              category="FAMILY GARDEN"
+              count="02 / 03"
+            />
+
+            <div className="mt-5 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.4fr_0.6fr] lg:items-center lg:gap-10">
+
+              {/* MAIN IMAGE */}
+
+              <div className="min-w-0">
+                <ProjectImageCard
+                  image={familyGarden.images[0]}
+                  aspect="aspect-[5/4] lg:aspect-[1.3/1] lg:max-h-[65vh]"
+                  sizes="(max-width: 1024px) 100vw, 65vw"
+                />
+              </div>
+
+              {/* SUPPORTING IMAGES */}
+
+              <div className="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:gap-5">
+                <ProjectImageCard
+                  image={familyGarden.images[1]}
+                  aspect="aspect-[4/5] lg:aspect-[5/4]"
+                  sizes="(max-width: 1024px) 48vw, 30vw"
+                />
+
+                <ProjectImageCard
+                  image={familyGarden.images[2]}
+                  aspect="aspect-[4/5] lg:aspect-[5/4]"
+                  sizes="(max-width: 1024px) 48vw, 30vw"
+                />
+              </div>
+            </div>
+
+            {/* PROJECT INFORMATION */}
+
+            <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_0.65fr] lg:items-end lg:pt-5">
+              <div>
+                <h3 className={projectTitleClass}>
+                  {familyGarden.title}
+                </h3>
+
+                <p className={`mt-3 max-w-xl ${bodyTextClass}`}>
+                  {familyGarden.description}
+                </p>
+              </div>
+
+              <p className="max-w-xs font-sans text-xs leading-6 text-[#71836a] lg:justify-self-end">
+                Thoughtful outdoor spaces designed to complement
+                everyday family living.
+              </p>
+            </div>
+          </div>
+        </motion.article>
+
+        {/* PROJECT 03 */}
+
+        <motion.article
+          variants={reveal}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+          style={{ zIndex: 3 }}
+          className="relative bg-[#f4f1eb] lg:sticky lg:top-0 lg:h-svh lg:min-h-[680px] lg:max-h-[1000px] lg:shadow-[0_-18px_50px_rgba(37,55,43,0.06)]"
+        >
+          <div className="mx-auto flex min-h-full max-w-[1440px] flex-col px-5 py-12 sm:px-8 sm:py-14 lg:h-full lg:justify-center lg:px-14 lg:py-10">
+
+            <ProjectMeta
+              number="03"
+              location={patioGarden.location}
+              category="PATIO & PLANTING"
+              count="03 / 03"
+            />
+
+            <div className="mt-5 grid gap-7 lg:min-h-0 lg:flex-1 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-14">
+
+              {/* PROJECT INFORMATION */}
+
+              <div className="order-2 lg:order-1">
+                <div className="mb-6 h-px w-12 bg-[#71836a]" />
+
+                <h3 className={projectTitleClass}>
+                  {patioGarden.title}
+                </h3>
+
+                <p className={`mt-4 max-w-md ${bodyTextClass}`}>
+                  {patioGarden.description}
+                </p>
+
+                <p className={`${metadataClass} mt-8 text-[#71836a]`}>
+                  {patioGarden.location}
+                </p>
+              </div>
+
+              {/* IMAGE COMPOSITION */}
+
+              <div className="order-1 grid grid-cols-[1.5fr_1fr] items-end gap-3 lg:order-2 lg:gap-5">
+                <ProjectImageCard
+                  image={patioGarden.images[0]}
+                  aspect="aspect-[4/5] lg:max-h-[66vh]"
+                  sizes="(max-width: 1024px) 65vw, 50vw"
+                />
+
+                <div className="flex flex-col gap-3 pb-8 lg:gap-5 lg:pb-12">
+                  <ProjectImageCard
+                    image={patioGarden.images[2]}
+                    aspect="aspect-square"
+                    sizes="(max-width: 1024px) 40vw, 25vw"
+                  />
+
+                  <ProjectImageCard
+                    image={patioGarden.images[1]}
+                    aspect="aspect-[4/3]"
+                    sizes="(max-width: 1024px) 40vw, 25vw"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.article>
+      </div>
+
+      {/* -------------------------------------------------------------- */}
+      {/* CLOSING CTA                                                    */}
+      {/* -------------------------------------------------------------- */}
+
+      <div className="relative z-[4] bg-[#f4f1eb]">
+        <div className="mx-auto max-w-[1440px] px-5 pb-24 pt-12 sm:px-8 sm:pb-28 sm:pt-16 lg:px-14 lg:pb-36">
+          <div className="border-t border-[#25372b]/15 pt-10 sm:pt-12">
+            <div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-end">
+              <div>
+                <p className={`${metadataClass} mb-4 text-[#71836a]`}>
+                  YOUR OUTDOOR SPACE
+                </p>
+
+                <h3 className="max-w-xl font-sans text-3xl font-semibold leading-tight tracking-[-0.04em] text-[#25372b] sm:text-4xl">
+                  Have a garden in mind?
+                  <span className="font-medium italic text-[#71836a]">
+                    {" "}Let's shape it.
+                  </span>
+                </h3>
+              </div>
+
+              <Link
+                href="/work"
+                className="group inline-flex min-h-12 items-center gap-4 self-start border-b border-[#25372b]/40 pb-2 font-sans text-sm font-medium text-[#25372b] transition-colors hover:border-[#71836a] hover:text-[#71836a] sm:self-auto"
+              >
+                Explore our work
+
+                <ArrowRight
+                  size={17}
+                  className="transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none"
+                  aria-hidden="true"
+                />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -197,17 +454,115 @@ export default function FeaturedWork() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Before / After Slider                                                       */
+/* PROJECT METADATA                                                           */
+/* -------------------------------------------------------------------------- */
+
+function ProjectMeta({
+  number,
+  location,
+  category,
+  count,
+}: {
+  number: string;
+  location: string;
+  category: string;
+  count: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-[#25372b]/15 pb-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className={`${metadataClass} text-[#71836a]`}>
+          {number}
+        </span>
+
+        <span className="h-3 w-px bg-[#25372b]/20" />
+
+        <span className={`${metadataClass} text-[#777a70]`}>
+          {category}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <span className="hidden font-sans text-xs text-[#73786e] sm:inline">
+          {location}
+        </span>
+
+        <span className="font-sans text-[10px] font-medium tracking-wide text-[#8b8c82]">
+          {count}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* PROGRESS IMAGE                                                             */
+/* -------------------------------------------------------------------------- */
+
+function ProgressImage({
+  src,
+  alt,
+  label,
+}: {
+  src: string;
+  alt: string;
+  label: string;
+}) {
+  return (
+    <div className="group relative aspect-[4/3] overflow-hidden bg-[#e7e4dc]">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 640px) 33vw, 25vw"
+        className="object-cover transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.035] motion-reduce:transition-none"
+      />
+
+      <span className="absolute bottom-2 left-2 bg-[#25372b]/80 px-2 py-1 font-sans text-[9px] font-medium tracking-[0.12em] text-white">
+        {label}
+      </span>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* PROJECT IMAGE                                                              */
+/* -------------------------------------------------------------------------- */
+
+function ProjectImageCard({
+  image,
+  aspect,
+  sizes,
+}: {
+  image: ProjectImage;
+  aspect: string;
+  sizes: string;
+}) {
+  return (
+    <div
+      className={`group relative ${aspect} overflow-hidden bg-[#e7e4dc]`}
+    >
+      <Image
+        src={image.src}
+        alt={image.alt}
+        fill
+        sizes={sizes}
+        className="object-cover transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.035] motion-reduce:transition-none"
+      />
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* ACCESSIBLE BEFORE / AFTER SLIDER                                           */
 /* -------------------------------------------------------------------------- */
 
 function BeforeAfter({
   before,
   after,
-  during,
 }: {
   before: string;
   after: string;
-  during: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
@@ -219,10 +574,17 @@ function BeforeAfter({
 
     const rect = container.getBoundingClientRect();
 
-    const newPosition =
+    const nextPosition =
       ((clientX - rect.left) / rect.width) * 100;
 
-    setPosition(Math.min(100, Math.max(0, newPosition)));
+    setPosition(Math.min(100, Math.max(0, nextPosition)));
+  };
+
+  const handlePointerDown = (
+    event: React.PointerEvent<HTMLDivElement>
+  ) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    updatePosition(event.clientX);
   };
 
   const handlePointerMove = (
@@ -233,139 +595,114 @@ function BeforeAfter({
     updatePosition(event.clientX);
   };
 
-  const handlePointerDown = (
-    event: React.PointerEvent<HTMLDivElement>
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLDivElement>
   ) => {
-    event.currentTarget.setPointerCapture(event.pointerId);
-    updatePosition(event.clientX);
+    let nextPosition = position;
+
+    switch (event.key) {
+      case "ArrowLeft":
+      case "ArrowDown":
+        nextPosition = position - 2;
+        break;
+
+      case "ArrowRight":
+      case "ArrowUp":
+        nextPosition = position + 2;
+        break;
+
+      case "Home":
+        nextPosition = 0;
+        break;
+
+      case "End":
+        nextPosition = 100;
+        break;
+
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    setPosition(Math.min(100, Math.max(0, nextPosition)));
   };
 
   return (
-    <div className="grid gap-3 lg:grid-cols-[1.7fr_0.8fr]">
-      {/* Before / After */}
+    <div className="relative">
       <div
         ref={containerRef}
-        className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-neutral-200 select-none touch-none"
+        className="relative aspect-[4/3] cursor-ew-resize touch-none select-none overflow-hidden bg-[#e7e4dc] sm:aspect-[16/9] lg:aspect-[2/0.92]"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
+        onKeyDown={handleKeyDown}
         role="slider"
-        aria-label="Before and after garden transformation comparison"
+        aria-label="Compare the garden before and after transformation"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(position)}
+        aria-valuetext={`${Math.round(position)} percent showing the original garden`}
         tabIndex={0}
       >
-        {/* After Image */}
+        {/* COMPLETED GARDEN */}
+
         <Image
           src={after}
-          alt="After view of the modern garden transformation"
+          alt="Completed modern garden transformation"
           fill
-          sizes="(max-width: 1024px) 100vw, 68vw"
+          priority
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 92vw, 90vw"
           className="pointer-events-none object-cover"
         />
 
-        {/* Before Image */}
+        {/* ORIGINAL GARDEN */}
+
         <div
           className="absolute inset-y-0 left-0 overflow-hidden"
           style={{ width: `${position}%` }}
         >
-          <div className="relative h-full w-full">
+          <div className="relative h-full w-[100vw]">
             <Image
               src={before}
-              alt="Before view of the modern garden transformation"
+              alt=""
               fill
-              sizes="(max-width: 1024px) 100vw, 68vw"
+              sizes="(max-width: 640px) 100vw, 90vw"
               className="pointer-events-none object-cover"
             />
           </div>
         </div>
 
-        {/* Divider */}
+        {/* DIVIDER */}
+
         <div
-          className="absolute inset-y-0 z-10 w-px bg-white shadow-[0_0_8px_rgba(0,0,0,0.2)]"
+          className="absolute inset-y-0 z-10 w-px bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)]"
           style={{ left: `${position}%` }}
           aria-hidden="true"
         />
 
-        {/* Slider Handle */}
+        {/* SLIDER CONTROL */}
+
         <div
-          className="absolute top-1/2 z-20 flex h-11 w-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/70 bg-black/60 text-white shadow-lg backdrop-blur-sm"
+          className="absolute top-1/2 z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-[#25372b]/85 text-white shadow-lg backdrop-blur-sm"
           style={{ left: `${position}%` }}
           aria-hidden="true"
         >
-          <MoveHorizontal
-            className="h-4 w-4"
-            strokeWidth={1.75}
-          />
+          <MoveHorizontal size={19} strokeWidth={1.5} />
         </div>
 
-        {/* Labels */}
-        <div className="pointer-events-none absolute left-4 top-4 z-20 rounded-full bg-black/65 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
-          Before
-        </div>
+        {/* LABELS */}
 
-        <div className="pointer-events-none absolute right-4 top-4 z-20 rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-neutral-900 backdrop-blur-sm">
-          After
-        </div>
+        <span className="pointer-events-none absolute left-4 top-4 z-20 bg-[#25372b]/75 px-3 py-2 font-sans text-[10px] font-medium tracking-[0.15em] text-white backdrop-blur-sm">
+          BEFORE
+        </span>
+
+        <span className="pointer-events-none absolute right-4 top-4 z-20 bg-[#f4f1eb]/90 px-3 py-2 font-sans text-[10px] font-medium tracking-[0.15em] text-[#25372b] backdrop-blur-sm">
+          AFTER
+        </span>
       </div>
 
-      {/* During Image */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-neutral-200 lg:aspect-auto">
-        <Image
-          src={during}
-          alt="During the modern garden transformation"
-          fill
-          sizes="(max-width: 1024px) 100vw, 32vw"
-          className="object-cover"
-        />
-
-        <div className="absolute left-4 top-4 rounded-full bg-black/65 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
-          During
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Project Gallery                                                             */
-/* -------------------------------------------------------------------------- */
-
-function ProjectGallery({
-  images,
-}: {
-  images: ProjectImage[];
-}) {
-  return (
-    <div className="grid gap-3 lg:grid-cols-[1.65fr_0.8fr]">
-      {/* Primary Image */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-neutral-200">
-        <Image
-          src={images[0].src}
-          alt={images[0].alt}
-          fill
-          sizes="(max-width: 1024px) 100vw, 68vw"
-          className="object-cover transition-transform duration-700 hover:scale-[1.015]"
-        />
-      </div>
-
-      {/* Supporting Images */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
-        {images.slice(1).map((image) => (
-          <div
-            key={image.src}
-            className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-neutral-200 lg:aspect-auto"
-          >
-            <Image
-              src={image.src}
-              alt={image.alt}
-              fill
-              sizes="(max-width: 1024px) 50vw, 32vw"
-              className="object-cover transition-transform duration-700 hover:scale-[1.015]"
-            />
-          </div>
-        ))}
-      </div>
+      <p className="mt-3 text-right font-sans text-[10px] tracking-[0.12em] text-[#85877d]">
+        DRAG TO EXPLORE THE TRANSFORMATION
+      </p>
     </div>
   );
 }
