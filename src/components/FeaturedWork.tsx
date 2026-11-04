@@ -3,9 +3,21 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, MoveHorizontal } from "lucide-react";
-import { useRef, useState } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  useScroll,
+  useMotionValueEvent,
+  useTransform,
+} from "framer-motion";
+import {
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  MoveHorizontal,
+} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 type ProjectImage = {
   src: string;
@@ -50,7 +62,7 @@ const projects: Project[] = [
     number: "02",
     title: "Low-Maintenance Family Garden",
     description:
-      "A practical family space combining lawn, planting, natural paving and improved boundaries.",
+      "A practical family space combining lawn, planting, natural paving and improved boundaries. Designed to give the family room to relax, play and enjoy the garden without demanding constant upkeep.",
     location: "Douglas, Cork",
     type: "gallery",
     images: [
@@ -72,7 +84,7 @@ const projects: Project[] = [
     number: "03",
     title: "Contemporary Patio & Planting",
     description:
-      "A compact outdoor space transformed into a simple, welcoming area for relaxing and entertaining.",
+      "A compact outdoor space transformed into a simple, welcoming area for relaxing and entertaining. Carefully considered paving and planting bring warmth, structure and purpose to the garden.",
     location: "Ballincollig, Cork",
     type: "gallery",
     images: [
@@ -104,6 +116,37 @@ const projectTitleClass =
 export default function FeaturedWork() {
   const shouldReduceMotion = useReducedMotion();
 
+  const sectionRef = useRef<HTMLElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 88px", "start -92px"],
+  });
+
+  const [isCompact, setIsCompact] = useState(false);
+
+  const headerHeight = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [180, 88]
+  );
+
+  const headingSize = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["clamp(2.8rem, 5.5vw, 5.2rem)", "1.45rem"]
+  );
+
+  const descriptionOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.65, 1],
+    [1, 0.4, 0]
+  );
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    setIsCompact(latest > 0.72);
+  });
+
   const featured = projects[0];
   const familyGarden = projects[1];
   const patioGarden = projects[2];
@@ -119,13 +162,13 @@ export default function FeaturedWork() {
   const reveal = {
     hidden: {
       opacity: 0,
-      y: shouldReduceMotion ? 0 : 24,
+      y: shouldReduceMotion ? 0 : 20,
     },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
-        duration: shouldReduceMotion ? 0 : 0.7,
+        duration: shouldReduceMotion ? 0 : 0.65,
         ease: "easeOut" as const,
       },
     },
@@ -133,82 +176,64 @@ export default function FeaturedWork() {
 
   return (
     <section
+      ref={sectionRef}
       id="projects"
       aria-labelledby="projects-heading"
-      className="overflow-clip bg-[#f4f1eb] text-[#25372b]"
+      className="relative overflow-clip bg-[#e9e9e1] text-[#25372b]"
     >
-      {/* -------------------------------------------------------------- */}
-      {/* SECTION INTRODUCTION                                           */}
-      {/* -------------------------------------------------------------- */}
+      {/* ============================================================ */}
+      {/* COLLAPSING STICKY PROJECT HEADING                            */}
+      {/* ============================================================ */}
 
-      <div className="mx-auto max-w-[1440px] px-5 pb-14 pt-24 sm:px-8 sm:pb-20 sm:pt-28 lg:px-14 lg:pb-24 lg:pt-36">
+      <div className="relative z-30 bg-[#e9e9e1] lg:sticky lg:top-[88px]">
         <motion.div
-          variants={reveal}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
-          className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end"
+          style={{ height: headerHeight }}
+          className="relative mx-auto flex max-w-[1440px] items-center px-5 sm:px-8 lg:px-14"
         >
-          <div>
-            <div className="mb-7 flex items-center gap-3">
-              <span className="h-px w-9 bg-[#71836a]" />
-
-              <span className={`${metadataClass} tracking-[0.22em] text-[#71836a]`}>
-                OUR SELECTED WORK
-              </span>
-            </div>
-
-            <h2
-              id="projects-heading"
-              className="max-w-3xl font-sans text-[clamp(2.8rem,5.5vw,5.2rem)] font-semibold leading-[1.04] tracking-[-0.045em] text-[#25372b]"
-            >
-              Gardens shaped
-              <br />
+          <motion.h2
+            id="projects-heading"
+            style={{ fontSize: headingSize }}
+            className="max-w-3xl font-sans font-semibold leading-[1.04] tracking-[-0.045em] text-[#25372b]"
+          >
+            Gardens shaped{" "}
+            <span className={isCompact ? "inline" : "block"}>
               around{" "}
               <span className="font-medium italic text-[#71836a]">
                 living.
               </span>
-            </h2>
-          </div>
+            </span>
+          </motion.h2>
 
-          <p className={`max-w-md lg:justify-self-end lg:pb-2 ${bodyTextClass}`}>
+          <motion.p
+            style={{ opacity: descriptionOpacity }}
+            className="absolute right-8 hidden max-w-md font-sans text-sm leading-7 text-[#62695f] lg:right-14 lg:block"
+          >
             Every outdoor space has its own character. Explore a selection
             of garden transformations shaped by thoughtful design,
             considered materials and an appreciation for the outdoors.
-          </p>
+          </motion.p>
         </motion.div>
-
-        {/* SCROLL INDICATOR */}
-
-        <div className="mt-12 flex items-center justify-between border-t border-[#25372b]/15 pt-5">
-          <span className={`${metadataClass} text-[#85877d]`}>
-            A CLOSER LOOK AT OUR WORK
-          </span>
-
-          <span className="flex items-center gap-2 font-sans text-[10px] font-medium uppercase tracking-[0.15em] text-[#71836a]">
-            SCROLL TO EXPLORE
-            <span className="inline-block h-6 w-px animate-pulse bg-[#71836a] motion-reduce:animate-none" />
-          </span>
-        </div>
       </div>
 
-      {/* -------------------------------------------------------------- */}
-      {/* STICKY PROJECT STACK                                           */}
-      {/* -------------------------------------------------------------- */}
+      {/* ============================================================ */}
+      {/* STACKED PROJECT CARDS                                        */}
+      {/* ============================================================ */}
 
-      <div className="relative">
+      <div className="relative space-y-8 py-8 sm:space-y-10 lg:space-y-0 lg:py-0">
 
-        {/* PROJECT 01 */}
+        {/* ---------------------------------------------------------- */}
+        {/* PROJECT 01: BEFORE / AFTER                                 */}
+        {/* ---------------------------------------------------------- */}
 
         <motion.article
           variants={reveal}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.12 }}
+          viewport={{ once: true, amount: 0.08 }}
           style={{ zIndex: 1 }}
-          className="relative bg-[#f4f1eb] lg:sticky lg:top-0 lg:h-svh lg:min-h-[680px] lg:max-h-[1000px]"
+          className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-10px_40px_rgba(37,55,43,0.035)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
         >
-          <div className="mx-auto flex min-h-full max-w-[1440px] flex-col px-5 py-12 sm:px-8 sm:py-14 lg:h-full lg:justify-center lg:px-14 lg:py-10">
+          <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
 
             <ProjectMeta
               number="01"
@@ -219,16 +244,13 @@ export default function FeaturedWork() {
 
             <div className="mt-5 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.55fr_0.45fr] lg:items-center lg:gap-10">
 
-              {/* MAIN IMAGE */}
-
               <div className="min-w-0">
                 <BeforeAfter
                   before={featured.before}
                   after={featured.after}
+                  reducedMotion={shouldReduceMotion}
                 />
               </div>
-
-              {/* PROJECT INFORMATION */}
 
               <div className="flex flex-col justify-center lg:py-4">
                 <span className={`${metadataClass} mb-5 text-[#71836a]`}>
@@ -252,9 +274,7 @@ export default function FeaturedWork() {
               </div>
             </div>
 
-            {/* BEFORE / DURING / AFTER */}
-
-            <div className="mt-6 grid grid-cols-3 gap-3 sm:mt-8 sm:gap-5 lg:mt-5 lg:max-w-[650px]">
+            <div className="mt-6 grid grid-cols-3 gap-3 sm:mt-8 sm:gap-5 lg:mt-4 lg:max-w-[650px]">
               <ProgressImage
                 src={featured.before}
                 alt="Original garden before transformation"
@@ -276,17 +296,19 @@ export default function FeaturedWork() {
           </div>
         </motion.article>
 
-        {/* PROJECT 02 */}
+        {/* ---------------------------------------------------------- */}
+        {/* PROJECT 02: FAMILY GARDEN                                  */}
+        {/* ---------------------------------------------------------- */}
 
         <motion.article
           variants={reveal}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.12 }}
+          viewport={{ once: true, amount: 0.08 }}
           style={{ zIndex: 2 }}
-          className="relative bg-[#f4f1eb] lg:sticky lg:top-0 lg:h-svh lg:min-h-[680px] lg:max-h-[1000px] lg:shadow-[0_-18px_50px_rgba(37,55,43,0.06)]"
+          className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-18px_50px_rgba(37,55,43,0.07)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
         >
-          <div className="mx-auto flex min-h-full max-w-[1440px] flex-col px-5 py-12 sm:px-8 sm:py-14 lg:h-full lg:justify-center lg:px-14 lg:py-10">
+          <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
 
             <ProjectMeta
               number="02"
@@ -295,67 +317,56 @@ export default function FeaturedWork() {
               count="02 / 03"
             />
 
-            <div className="mt-5 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.4fr_0.6fr] lg:items-center lg:gap-10">
+            <div className="mt-6 grid gap-7 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.35fr_0.65fr] lg:items-center lg:gap-12">
 
-              {/* MAIN IMAGE */}
+              {/* AUTOMATIC IMAGE SLIDER */}
 
               <div className="min-w-0">
-                <ProjectImageCard
-                  image={familyGarden.images[0]}
-                  aspect="aspect-[5/4] lg:aspect-[1.3/1] lg:max-h-[65vh]"
-                  sizes="(max-width: 1024px) 100vw, 65vw"
+                <ProjectGallery
+                  images={familyGarden.images}
+                  label={familyGarden.title}
+                  reducedMotion={shouldReduceMotion}
                 />
               </div>
 
-              {/* SUPPORTING IMAGES */}
+              {/* PROJECT INFORMATION */}
 
-              <div className="grid grid-cols-2 gap-3 lg:grid-cols-1 lg:gap-5">
-                <ProjectImageCard
-                  image={familyGarden.images[1]}
-                  aspect="aspect-[4/5] lg:aspect-[5/4]"
-                  sizes="(max-width: 1024px) 48vw, 30vw"
-                />
+              <div className="flex flex-col justify-center">
+                <div className="mb-6 h-px w-12 bg-[#71836a]" />
 
-                <ProjectImageCard
-                  image={familyGarden.images[2]}
-                  aspect="aspect-[4/5] lg:aspect-[5/4]"
-                  sizes="(max-width: 1024px) 48vw, 30vw"
-                />
-              </div>
-            </div>
+                <span className={`${metadataClass} mb-5 text-[#71836a]`}>
+                  RESIDENTIAL LANDSCAPING
+                </span>
 
-            {/* PROJECT INFORMATION */}
-
-            <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_0.65fr] lg:items-end lg:pt-5">
-              <div>
                 <h3 className={projectTitleClass}>
                   {familyGarden.title}
                 </h3>
 
-                <p className={`mt-3 max-w-xl ${bodyTextClass}`}>
+                <p className={`mt-4 ${bodyTextClass}`}>
                   {familyGarden.description}
                 </p>
-              </div>
 
-              <p className="max-w-xs font-sans text-xs leading-6 text-[#71836a] lg:justify-self-end">
-                Thoughtful outdoor spaces designed to complement
-                everyday family living.
-              </p>
+                <p className={`${metadataClass} mt-8 text-[#71836a]`}>
+                  {familyGarden.location}
+                </p>
+              </div>
             </div>
           </div>
         </motion.article>
 
-        {/* PROJECT 03 */}
+        {/* ---------------------------------------------------------- */}
+        {/* PROJECT 03: PATIO & PLANTING                               */}
+        {/* ---------------------------------------------------------- */}
 
         <motion.article
           variants={reveal}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.12 }}
+          viewport={{ once: true, amount: 0.08 }}
           style={{ zIndex: 3 }}
-          className="relative bg-[#f4f1eb] lg:sticky lg:top-0 lg:h-svh lg:min-h-[680px] lg:max-h-[1000px] lg:shadow-[0_-18px_50px_rgba(37,55,43,0.06)]"
+          className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-18px_50px_rgba(37,55,43,0.07)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
         >
-          <div className="mx-auto flex min-h-full max-w-[1440px] flex-col px-5 py-12 sm:px-8 sm:py-14 lg:h-full lg:justify-center lg:px-14 lg:py-10">
+          <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
 
             <ProjectMeta
               number="03"
@@ -364,18 +375,22 @@ export default function FeaturedWork() {
               count="03 / 03"
             />
 
-            <div className="mt-5 grid gap-7 lg:min-h-0 lg:flex-1 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-14">
+            <div className="mt-6 grid gap-7 lg:min-h-0 lg:flex-1 lg:grid-cols-[0.65fr_1.35fr] lg:items-center lg:gap-12">
 
               {/* PROJECT INFORMATION */}
 
-              <div className="order-2 lg:order-1">
+              <div className="order-2 flex flex-col justify-center lg:order-1">
                 <div className="mb-6 h-px w-12 bg-[#71836a]" />
+
+                <span className={`${metadataClass} mb-5 text-[#71836a]`}>
+                  CONTEMPORARY LANDSCAPING
+                </span>
 
                 <h3 className={projectTitleClass}>
                   {patioGarden.title}
                 </h3>
 
-                <p className={`mt-4 max-w-md ${bodyTextClass}`}>
+                <p className={`mt-4 ${bodyTextClass}`}>
                   {patioGarden.description}
                 </p>
 
@@ -384,42 +399,30 @@ export default function FeaturedWork() {
                 </p>
               </div>
 
-              {/* IMAGE COMPOSITION */}
+              {/* AUTOMATIC IMAGE SLIDER */}
 
-              <div className="order-1 grid grid-cols-[1.5fr_1fr] items-end gap-3 lg:order-2 lg:gap-5">
-                <ProjectImageCard
-                  image={patioGarden.images[0]}
-                  aspect="aspect-[4/5] lg:max-h-[66vh]"
-                  sizes="(max-width: 1024px) 65vw, 50vw"
+              <div className="order-1 min-w-0 lg:order-2">
+                <ProjectGallery
+                  images={patioGarden.images}
+                  label={patioGarden.title}
+                  reducedMotion={shouldReduceMotion}
                 />
-
-                <div className="flex flex-col gap-3 pb-8 lg:gap-5 lg:pb-12">
-                  <ProjectImageCard
-                    image={patioGarden.images[2]}
-                    aspect="aspect-square"
-                    sizes="(max-width: 1024px) 40vw, 25vw"
-                  />
-
-                  <ProjectImageCard
-                    image={patioGarden.images[1]}
-                    aspect="aspect-[4/3]"
-                    sizes="(max-width: 1024px) 40vw, 25vw"
-                  />
-                </div>
               </div>
             </div>
           </div>
         </motion.article>
       </div>
 
-      {/* -------------------------------------------------------------- */}
-      {/* CLOSING CTA                                                    */}
-      {/* -------------------------------------------------------------- */}
+      {/* ============================================================ */}
+      {/* CLOSING CTA                                                  */}
+      {/* ============================================================ */}
 
-      <div className="relative z-[4] bg-[#f4f1eb]">
+      <div className="relative z-[4] bg-[#e9e9e1]">
         <div className="mx-auto max-w-[1440px] px-5 pb-24 pt-12 sm:px-8 sm:pb-28 sm:pt-16 lg:px-14 lg:pb-36">
+
           <div className="border-t border-[#25372b]/15 pt-10 sm:pt-12">
             <div className="flex flex-col justify-between gap-7 sm:flex-row sm:items-end">
+
               <div>
                 <p className={`${metadataClass} mb-4 text-[#71836a]`}>
                   YOUR OUTDOOR SPACE
@@ -453,9 +456,9 @@ export default function FeaturedWork() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
 /* PROJECT METADATA                                                           */
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
 
 function ProjectMeta({
   number,
@@ -495,9 +498,9 @@ function ProjectMeta({
   );
 }
 
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
 /* PROGRESS IMAGE                                                             */
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
 
 function ProgressImage({
   src,
@@ -525,44 +528,168 @@ function ProgressImage({
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/* PROJECT IMAGE                                                              */
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
+/* AUTOMATIC PROJECT GALLERY                                                  */
+/* ========================================================================== */
 
-function ProjectImageCard({
-  image,
-  aspect,
-  sizes,
+function ProjectGallery({
+  images,
+  label,
+  reducedMotion,
 }: {
-  image: ProjectImage;
-  aspect: string;
-  sizes: string;
+  images: ProjectImage[];
+  label: string;
+  reducedMotion: boolean;
 }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const next = () => {
+    setActiveIndex((current) => (current + 1) % images.length);
+  };
+
+  const previous = () => {
+    setActiveIndex(
+      (current) => (current - 1 + images.length) % images.length
+    );
+  };
+
+  useEffect(() => {
+    if (reducedMotion || isPaused || images.length < 2) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % images.length);
+    }, 5500);
+
+    return () => window.clearInterval(interval);
+  }, [reducedMotion, isPaused, images.length]);
+
   return (
     <div
-      className={`group relative ${aspect} overflow-hidden bg-[#e7e4dc]`}
+      className="w-full"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={(event) => {
+        if (
+          !event.currentTarget.contains(
+            event.relatedTarget as Node | null
+          )
+        ) {
+          setIsPaused(false);
+        }
+      }}
     >
-      <Image
-        src={image.src}
-        alt={image.alt}
-        fill
-        sizes={sizes}
-        className="object-cover transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.035] motion-reduce:transition-none"
-      />
+      {/* IMAGE VIEWPORT */}
+
+      <div
+        className="group relative aspect-[4/3] overflow-hidden bg-[#e7e4dc] sm:aspect-[16/10]"
+        aria-roledescription="carousel"
+        aria-label={`${label} project images`}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={activeIndex}
+            initial={
+              reducedMotion
+                ? { opacity: 0 }
+                : { opacity: 0, x: 32 }
+            }
+            animate={{ opacity: 1, x: 0 }}
+            exit={
+              reducedMotion
+                ? { opacity: 0 }
+                : { opacity: 0, x: -32 }
+            }
+            transition={{
+              duration: reducedMotion ? 0 : 0.95,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={images[activeIndex].src}
+              alt={images[activeIndex].alt}
+              fill
+              priority={activeIndex === 0}
+              sizes="(max-width: 1024px) 100vw, 65vw"
+              className="object-cover"
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* IMAGE COUNTER */}
+
+        <div className="absolute left-4 top-4 z-20 bg-[#25372b]/75 px-3 py-2 font-sans text-[10px] font-medium tracking-[0.15em] text-white backdrop-blur-sm">
+          {String(activeIndex + 1).padStart(2, "0")} /{" "}
+          {String(images.length).padStart(2, "0")}
+        </div>
+
+        {/* NAVIGATION */}
+
+        <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={previous}
+            aria-label="Previous project image"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-[#25372b]/75 text-white backdrop-blur-sm transition-colors hover:bg-[#25372b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <ChevronLeft size={19} strokeWidth={1.6} />
+          </button>
+
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Next project image"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-[#25372b]/75 text-white backdrop-blur-sm transition-colors hover:bg-[#25372b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <ChevronRight size={19} strokeWidth={1.6} />
+          </button>
+        </div>
+      </div>
+
+      {/* PAGINATION */}
+
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {images.map((image, index) => (
+            <button
+              key={image.src}
+              type="button"
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Show project image ${index + 1}`}
+              aria-current={activeIndex === index ? "true" : undefined}
+              className={`h-[3px] transition-all duration-300 ${
+                activeIndex === index
+                  ? "w-9 bg-[#71836a]"
+                  : "w-5 bg-[#25372b]/20 hover:bg-[#25372b]/50"
+              }`}
+            />
+          ))}
+        </div>
+
+        <span className="font-sans text-[10px] font-medium uppercase tracking-[0.13em] text-[#85877d]">
+          {isPaused ? "PAUSED" : "EXPLORE PROJECT"}
+        </span>
+      </div>
     </div>
   );
 }
 
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
 /* ACCESSIBLE BEFORE / AFTER SLIDER                                           */
-/* -------------------------------------------------------------------------- */
+/* ========================================================================== */
 
 function BeforeAfter({
   before,
   after,
+  reducedMotion,
 }: {
   before: string;
   after: string;
+  reducedMotion: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
@@ -701,7 +828,9 @@ function BeforeAfter({
       </div>
 
       <p className="mt-3 text-right font-sans text-[10px] tracking-[0.12em] text-[#85877d]">
-        DRAG TO EXPLORE THE TRANSFORMATION
+        {reducedMotion
+          ? "USE THE SLIDER TO EXPLORE"
+          : "DRAG TO EXPLORE THE TRANSFORMATION"}
       </p>
     </div>
   );
