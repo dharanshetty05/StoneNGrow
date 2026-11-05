@@ -17,7 +17,17 @@ import {
   ChevronRight,
   MoveHorizontal,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+  type KeyboardEvent,
+} from "react";
+
+/* ========================================================================== */
+/* TYPES                                                                      */
+/* ========================================================================== */
 
 type ProjectImage = {
   src: string;
@@ -32,7 +42,6 @@ type BeforeAfterProject = {
   type: "before-after";
   before: string;
   after: string;
-  during: string;
 };
 
 type GalleryProject = {
@@ -46,6 +55,10 @@ type GalleryProject = {
 
 type Project = BeforeAfterProject | GalleryProject;
 
+/* ========================================================================== */
+/* PROJECT DATA                                                               */
+/* ========================================================================== */
+
 const projects: Project[] = [
   {
     number: "01",
@@ -56,7 +69,6 @@ const projects: Project[] = [
     type: "before-after",
     before: "/Projects/Modern Garden Transformation/Before.png",
     after: "/Projects/Modern Garden Transformation/After.png",
-    during: "/Projects/Modern Garden Transformation/During.png",
   },
   {
     number: "02",
@@ -104,6 +116,10 @@ const projects: Project[] = [
   },
 ];
 
+/* ========================================================================== */
+/* DESIGN TOKENS                                                              */
+/* ========================================================================== */
+
 const metadataClass =
   "font-sans text-[10px] font-medium uppercase tracking-[0.17em]";
 
@@ -113,10 +129,18 @@ const bodyTextClass =
 const projectTitleClass =
   "font-sans text-[clamp(1.8rem,2.8vw,2.75rem)] font-medium leading-[1.12] tracking-[-0.045em] text-[#25372b]";
 
+/* ========================================================================== */
+/* MAIN COMPONENT                                                             */
+/* ========================================================================== */
+
 export default function FeaturedWork() {
-  const shouldReduceMotion = useReducedMotion();
+  const shouldReduceMotion = useReducedMotion() ?? false;
 
   const sectionRef = useRef<HTMLElement>(null);
+
+  /* ------------------------------------------------------------------------ */
+  /* HEADER SCROLL ANIMATION                                                  */
+  /* ------------------------------------------------------------------------ */
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -147,17 +171,26 @@ export default function FeaturedWork() {
     setIsCompact(latest > 0.72);
   });
 
-  const featured = projects[0];
-  const familyGarden = projects[1];
-  const patioGarden = projects[2];
+  /* ------------------------------------------------------------------------ */
+  /* PROJECT SELECTION                                                        */
+  /* ------------------------------------------------------------------------ */
+
+  const [featured, familyGarden, patioGarden] = projects;
 
   if (
+    !featured ||
+    !familyGarden ||
+    !patioGarden ||
     featured.type !== "before-after" ||
     familyGarden.type !== "gallery" ||
     patioGarden.type !== "gallery"
   ) {
     return null;
   }
+
+  /* ------------------------------------------------------------------------ */
+  /* REVEAL ANIMATION                                                         */
+  /* ------------------------------------------------------------------------ */
 
   const reveal = {
     hidden: {
@@ -168,11 +201,15 @@ export default function FeaturedWork() {
       opacity: 1,
       y: 0,
       transition: {
-        duration: shouldReduceMotion ? 0 : 0.65,
-        ease: "easeOut" as const,
+        duration: shouldReduceMotion ? 0 : 0.7,
+        ease: [0.22, 1, 0.36, 1] as const,
       },
     },
   };
+
+  /* ======================================================================== */
+  /* RENDER                                                                   */
+  /* ======================================================================== */
 
   return (
     <section
@@ -181,241 +218,230 @@ export default function FeaturedWork() {
       aria-labelledby="projects-heading"
       className="relative overflow-clip bg-[#e9e9e1] text-[#25372b]"
     >
-      {/* ============================================================ */}
-      {/* COLLAPSING STICKY PROJECT HEADING                            */}
-      {/* ============================================================ */}
+      {/* ================================================================== */}
+      {/* STICKY HEADING + PROJECTS 01 & 02                                 */}
+      {/* ================================================================== */}
 
-      <div className="relative z-30 bg-[#e9e9e1] lg:sticky lg:top-[88px]">
-        <motion.div
-          style={{ height: headerHeight }}
-          className="relative mx-auto flex max-w-[1440px] items-center px-5 sm:px-8 lg:px-14"
-        >
-          <motion.h2
-            id="projects-heading"
-            style={{ fontSize: headingSize }}
-            className="max-w-3xl font-sans font-semibold leading-[1.04] tracking-[-0.045em] text-[#25372b]"
+      <div className="relative">
+
+        {/* COLLAPSING STICKY HEADING */}
+
+        <div className="relative z-30 bg-[#e9e9e1] lg:sticky lg:top-[88px]">
+          <motion.div
+            style={{ height: headerHeight }}
+            className="relative mx-auto flex max-w-[1440px] items-center px-5 sm:px-8 lg:px-14"
           >
-            Gardens shaped{" "}
-            <span className={isCompact ? "inline" : "block"}>
-              around{" "}
-              <span className="font-medium italic text-[#71836a]">
-                living.
+            <motion.h2
+              id="projects-heading"
+              style={{ fontSize: headingSize }}
+              className="max-w-3xl font-sans font-semibold leading-[1.04] tracking-[-0.045em] text-[#25372b]"
+            >
+              Gardens shaped{" "}
+              <span className={isCompact ? "inline" : "block"}>
+                around{" "}
+                <span className="font-medium italic text-[#71836a]">
+                  living.
+                </span>
               </span>
-            </span>
-          </motion.h2>
+            </motion.h2>
 
-          <motion.p
-            style={{ opacity: descriptionOpacity }}
-            className="absolute right-8 hidden max-w-md font-sans text-sm leading-7 text-[#62695f] lg:right-14 lg:block"
+            <motion.p
+              style={{ opacity: descriptionOpacity }}
+              className="absolute right-8 hidden max-w-md font-sans text-sm leading-7 text-[#62695f] lg:right-14 lg:block"
+            >
+              Every outdoor space has its own character. Explore a selection
+              of garden transformations shaped by thoughtful design,
+              considered materials and an appreciation for the outdoors.
+            </motion.p>
+          </motion.div>
+        </div>
+
+        {/* PROJECT CARDS 01 + 02 */}
+
+        <div className="relative space-y-8 py-8 sm:space-y-10 lg:space-y-0 lg:py-0">
+
+          {/* ============================================================ */}
+          {/* PROJECT 01: BEFORE / AFTER                                   */}
+          {/* ============================================================ */}
+
+          <motion.article
+            variants={reveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.08 }}
+            style={{ zIndex: 1 }}
+            className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-10px_40px_rgba(37,55,43,0.035)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
           >
-            Every outdoor space has its own character. Explore a selection
-            of garden transformations shaped by thoughtful design,
-            considered materials and an appreciation for the outdoors.
-          </motion.p>
-        </motion.div>
+            <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
+
+              <ProjectMeta
+                number="01"
+                location={featured.location}
+                category="FEATURED TRANSFORMATION"
+                count="01 / 03"
+              />
+
+              <div className="mt-5 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.55fr_0.45fr] lg:items-center lg:gap-10">
+
+                {/* BEFORE / AFTER COMPARISON */}
+
+                <div className="min-w-0">
+                  <BeforeAfter
+                    before={featured.before}
+                    after={featured.after}
+                    reducedMotion={shouldReduceMotion}
+                  />
+                </div>
+
+                {/* PROJECT INFORMATION */}
+
+                <div className="flex flex-col justify-center lg:py-4">
+                  <span className={`${metadataClass} mb-5 text-[#71836a]`}>
+                    GARDEN REDESIGN
+                  </span>
+
+                  <h3 className={projectTitleClass}>
+                    {featured.title}
+                  </h3>
+
+                  <p className={`mt-4 ${bodyTextClass}`}>
+                    {featured.description}
+                  </p>
+
+                  <div className="mt-7 h-px w-12 bg-[#71836a]" />
+
+                  <p className="mt-4 font-sans text-xs leading-6 text-[#85877d]">
+                    A considered transformation, from the original space
+                    to the finished garden.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.article>
+
+          {/* ============================================================ */}
+          {/* PROJECT 02: FAMILY GARDEN                                    */}
+          {/* ============================================================ */}
+
+          <motion.article
+            variants={reveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.08 }}
+            style={{ zIndex: 2 }}
+            className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-18px_50px_rgba(37,55,43,0.07)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
+          >
+            <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
+
+              <ProjectMeta
+                number="02"
+                location={familyGarden.location}
+                category="FAMILY GARDEN"
+                count="02 / 03"
+              />
+
+              <div className="mt-6 grid gap-7 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.35fr_0.65fr] lg:items-center lg:gap-12">
+
+                {/* MOVING IMAGE SLIDER */}
+
+                <div className="min-w-0">
+                  <ProjectGallery
+                    images={familyGarden.images}
+                    label={familyGarden.title}
+                    reducedMotion={shouldReduceMotion}
+                  />
+                </div>
+
+                {/* PROJECT INFORMATION */}
+
+                <div className="flex flex-col justify-center">
+                  <div className="mb-6 h-px w-12 bg-[#71836a]" />
+
+                  <span className={`${metadataClass} mb-5 text-[#71836a]`}>
+                    RESIDENTIAL LANDSCAPING
+                  </span>
+
+                  <h3 className={projectTitleClass}>
+                    {familyGarden.title}
+                  </h3>
+
+                  <p className={`mt-4 ${bodyTextClass}`}>
+                    {familyGarden.description}
+                  </p>
+
+                  <p className={`${metadataClass} mt-8 text-[#71836a]`}>
+                    {familyGarden.location}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.article>
+        </div>
       </div>
 
-      {/* ============================================================ */}
-      {/* STACKED PROJECT CARDS                                        */}
-      {/* ============================================================ */}
+      {/* ================================================================== */}
+      {/* PROJECT 03: CONTEMPORARY PATIO                                   */}
+      {/* ================================================================== */}
 
-      <div className="relative space-y-8 py-8 sm:space-y-10 lg:space-y-0 lg:py-0">
+      {/* Heading releases before this project enters. */}
 
-        {/* ---------------------------------------------------------- */}
-        {/* PROJECT 01: BEFORE / AFTER                                 */}
-        {/* ---------------------------------------------------------- */}
+      <motion.article
+        variants={reveal}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.08 }}
+        style={{ zIndex: 3 }}
+        className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-18px_50px_rgba(37,55,43,0.07)]"
+      >
+        <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:px-10 lg:py-12">
 
-        <motion.article
-          variants={reveal}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.08 }}
-          style={{ zIndex: 1 }}
-          className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-10px_40px_rgba(37,55,43,0.035)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
-        >
-          <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
+          <ProjectMeta
+            number="03"
+            location={patioGarden.location}
+            category="PATIO & PLANTING"
+            count="03 / 03"
+          />
 
-            <ProjectMeta
-              number="01"
-              location={featured.location}
-              category="FEATURED TRANSFORMATION"
-              count="01 / 03"
-            />
+          <div className="mt-6 grid gap-7 lg:grid-cols-[0.65fr_1.35fr] lg:items-center lg:gap-12">
 
-            <div className="mt-5 grid gap-6 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.55fr_0.45fr] lg:items-center lg:gap-10">
+            {/* PROJECT INFORMATION */}
 
-              <div className="min-w-0">
-                <BeforeAfter
-                  before={featured.before}
-                  after={featured.after}
-                  reducedMotion={shouldReduceMotion}
-                />
-              </div>
+            <div className="flex flex-col justify-center">
+              <div className="mb-6 h-px w-12 bg-[#71836a]" />
 
-              <div className="flex flex-col justify-center lg:py-4">
-                <span className={`${metadataClass} mb-5 text-[#71836a]`}>
-                  GARDEN REDESIGN
-                </span>
+              <span className={`${metadataClass} mb-5 text-[#71836a]`}>
+                CONTEMPORARY LANDSCAPING
+              </span>
 
-                <h3 className={projectTitleClass}>
-                  {featured.title}
-                </h3>
+              <h3 className={projectTitleClass}>
+                {patioGarden.title}
+              </h3>
 
-                <p className={`mt-4 ${bodyTextClass}`}>
-                  {featured.description}
-                </p>
+              <p className={`mt-4 ${bodyTextClass}`}>
+                {patioGarden.description}
+              </p>
 
-                <div className="mt-7 h-px w-12 bg-[#71836a]" />
-
-                <p className="mt-4 font-sans text-xs leading-6 text-[#85877d]">
-                  A considered transformation, from the original space
-                  to the finished garden.
-                </p>
-              </div>
+              <p className={`${metadataClass} mt-8 text-[#71836a]`}>
+                {patioGarden.location}
+              </p>
             </div>
 
-            <div className="mt-6 grid grid-cols-3 gap-3 sm:mt-8 sm:gap-5 lg:mt-4 lg:max-w-[650px]">
-              <ProgressImage
-                src={featured.before}
-                alt="Original garden before transformation"
-                label="BEFORE"
-              />
+            {/* MOVING IMAGE SLIDER */}
 
-              <ProgressImage
-                src={featured.during}
-                alt="Garden during the transformation"
-                label="DURING"
-              />
-
-              <ProgressImage
-                src={featured.after}
-                alt="Completed modern garden transformation"
-                label="AFTER"
+            <div className="min-w-0">
+              <ProjectGallery
+                images={patioGarden.images}
+                label={patioGarden.title}
+                reducedMotion={shouldReduceMotion}
               />
             </div>
           </div>
-        </motion.article>
+        </div>
+      </motion.article>
 
-        {/* ---------------------------------------------------------- */}
-        {/* PROJECT 02: FAMILY GARDEN                                  */}
-        {/* ---------------------------------------------------------- */}
-
-        <motion.article
-          variants={reveal}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.08 }}
-          style={{ zIndex: 2 }}
-          className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-18px_50px_rgba(37,55,43,0.07)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
-        >
-          <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
-
-            <ProjectMeta
-              number="02"
-              location={familyGarden.location}
-              category="FAMILY GARDEN"
-              count="02 / 03"
-            />
-
-            <div className="mt-6 grid gap-7 lg:min-h-0 lg:flex-1 lg:grid-cols-[1.35fr_0.65fr] lg:items-center lg:gap-12">
-
-              {/* AUTOMATIC IMAGE SLIDER */}
-
-              <div className="min-w-0">
-                <ProjectGallery
-                  images={familyGarden.images}
-                  label={familyGarden.title}
-                  reducedMotion={shouldReduceMotion}
-                />
-              </div>
-
-              {/* PROJECT INFORMATION */}
-
-              <div className="flex flex-col justify-center">
-                <div className="mb-6 h-px w-12 bg-[#71836a]" />
-
-                <span className={`${metadataClass} mb-5 text-[#71836a]`}>
-                  RESIDENTIAL LANDSCAPING
-                </span>
-
-                <h3 className={projectTitleClass}>
-                  {familyGarden.title}
-                </h3>
-
-                <p className={`mt-4 ${bodyTextClass}`}>
-                  {familyGarden.description}
-                </p>
-
-                <p className={`${metadataClass} mt-8 text-[#71836a]`}>
-                  {familyGarden.location}
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.article>
-
-        {/* ---------------------------------------------------------- */}
-        {/* PROJECT 03: PATIO & PLANTING                               */}
-        {/* ---------------------------------------------------------- */}
-
-        <motion.article
-          variants={reveal}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.08 }}
-          style={{ zIndex: 3 }}
-          className="relative mx-auto w-full max-w-[1360px] bg-[#f4f1eb] shadow-[0_-18px_50px_rgba(37,55,43,0.07)] lg:sticky lg:top-[176px] lg:h-[calc(100svh-176px)] lg:min-h-[560px]"
-        >
-          <div className="mx-auto flex min-h-full max-w-[1320px] flex-col px-5 py-10 sm:px-8 sm:py-12 lg:h-full lg:justify-center lg:px-10 lg:py-6">
-
-            <ProjectMeta
-              number="03"
-              location={patioGarden.location}
-              category="PATIO & PLANTING"
-              count="03 / 03"
-            />
-
-            <div className="mt-6 grid gap-7 lg:min-h-0 lg:flex-1 lg:grid-cols-[0.65fr_1.35fr] lg:items-center lg:gap-12">
-
-              {/* PROJECT INFORMATION */}
-
-              <div className="order-2 flex flex-col justify-center lg:order-1">
-                <div className="mb-6 h-px w-12 bg-[#71836a]" />
-
-                <span className={`${metadataClass} mb-5 text-[#71836a]`}>
-                  CONTEMPORARY LANDSCAPING
-                </span>
-
-                <h3 className={projectTitleClass}>
-                  {patioGarden.title}
-                </h3>
-
-                <p className={`mt-4 ${bodyTextClass}`}>
-                  {patioGarden.description}
-                </p>
-
-                <p className={`${metadataClass} mt-8 text-[#71836a]`}>
-                  {patioGarden.location}
-                </p>
-              </div>
-
-              {/* AUTOMATIC IMAGE SLIDER */}
-
-              <div className="order-1 min-w-0 lg:order-2">
-                <ProjectGallery
-                  images={patioGarden.images}
-                  label={patioGarden.title}
-                  reducedMotion={shouldReduceMotion}
-                />
-              </div>
-            </div>
-          </div>
-        </motion.article>
-      </div>
-
-      {/* ============================================================ */}
-      {/* CLOSING CTA                                                  */}
-      {/* ============================================================ */}
+      {/* ================================================================== */}
+      {/* CLOSING CTA                                                        */}
+      {/* ================================================================== */}
 
       <div className="relative z-[4] bg-[#e9e9e1]">
         <div className="mx-auto max-w-[1440px] px-5 pb-24 pt-12 sm:px-8 sm:pb-28 sm:pt-16 lg:px-14 lg:pb-36">
@@ -499,37 +525,7 @@ function ProjectMeta({
 }
 
 /* ========================================================================== */
-/* PROGRESS IMAGE                                                             */
-/* ========================================================================== */
-
-function ProgressImage({
-  src,
-  alt,
-  label,
-}: {
-  src: string;
-  alt: string;
-  label: string;
-}) {
-  return (
-    <div className="group relative aspect-[4/3] overflow-hidden bg-[#e7e4dc]">
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes="(max-width: 640px) 33vw, 25vw"
-        className="object-cover transition-transform duration-700 ease-out motion-safe:group-hover:scale-[1.035] motion-reduce:transition-none"
-      />
-
-      <span className="absolute bottom-2 left-2 bg-[#25372b]/80 px-2 py-1 font-sans text-[9px] font-medium tracking-[0.12em] text-white">
-        {label}
-      </span>
-    </div>
-  );
-}
-
-/* ========================================================================== */
-/* AUTOMATIC PROJECT GALLERY                                                  */
+/* AUTOMATIC HORIZONTAL PROJECT GALLERY                                       */
 /* ========================================================================== */
 
 function ProjectGallery({
@@ -542,17 +538,33 @@ function ProjectGallery({
   reducedMotion: boolean;
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [isPaused, setIsPaused] = useState(false);
 
+  const activeImage = images[activeIndex] ?? images[0];
+
+  /* ------------------------------------------------------------------------ */
+  /* NAVIGATION                                                               */
+  /* ------------------------------------------------------------------------ */
+
+  const changeSlide = (nextIndex: number, nextDirection: 1 | -1) => {
+    if (images.length < 2) return;
+
+    setDirection(nextDirection);
+    setActiveIndex((nextIndex + images.length) % images.length);
+  };
+
   const next = () => {
-    setActiveIndex((current) => (current + 1) % images.length);
+    changeSlide(activeIndex + 1, 1);
   };
 
   const previous = () => {
-    setActiveIndex(
-      (current) => (current - 1 + images.length) % images.length
-    );
+    changeSlide(activeIndex - 1, -1);
   };
+
+  /* ------------------------------------------------------------------------ */
+  /* AUTOMATIC SLIDING                                                        */
+  /* ------------------------------------------------------------------------ */
 
   useEffect(() => {
     if (reducedMotion || isPaused || images.length < 2) {
@@ -560,11 +572,37 @@ function ProjectGallery({
     }
 
     const interval = window.setInterval(() => {
+      setDirection(1);
       setActiveIndex((current) => (current + 1) % images.length);
     }, 5500);
 
     return () => window.clearInterval(interval);
   }, [reducedMotion, isPaused, images.length]);
+
+  if (!activeImage) return null;
+
+  /* ------------------------------------------------------------------------ */
+  /* SLIDE ANIMATION                                                          */
+  /* ------------------------------------------------------------------------ */
+
+  const slideVariants = {
+    enter: (slideDirection: 1 | -1) => ({
+      opacity: 0,
+      x: slideDirection === 1 ? 55 : -55,
+    }),
+    center: {
+      opacity: 1,
+      x: 0,
+    },
+    exit: (slideDirection: 1 | -1) => ({
+      opacity: 0,
+      x: slideDirection === 1 ? -55 : 55,
+    }),
+  };
+
+  /* ------------------------------------------------------------------------ */
+  /* RENDER                                                                   */
+  /* ------------------------------------------------------------------------ */
 
   return (
     <div
@@ -581,7 +619,10 @@ function ProjectGallery({
           setIsPaused(false);
         }
       }}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
     >
+
       {/* IMAGE VIEWPORT */}
 
       <div
@@ -589,29 +630,27 @@ function ProjectGallery({
         aria-roledescription="carousel"
         aria-label={`${label} project images`}
       >
-        <AnimatePresence mode="wait" initial={false}>
+        <AnimatePresence
+          initial={false}
+          mode="sync"
+          custom={direction}
+        >
           <motion.div
             key={activeIndex}
-            initial={
-              reducedMotion
-                ? { opacity: 0 }
-                : { opacity: 0, x: 32 }
-            }
-            animate={{ opacity: 1, x: 0 }}
-            exit={
-              reducedMotion
-                ? { opacity: 0 }
-                : { opacity: 0, x: -32 }
-            }
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
             transition={{
-              duration: reducedMotion ? 0 : 0.95,
+              duration: reducedMotion ? 0 : 0.85,
               ease: [0.22, 1, 0.36, 1],
             }}
             className="absolute inset-0"
           >
             <Image
-              src={images[activeIndex].src}
-              alt={images[activeIndex].alt}
+              src={activeImage.src}
+              alt={activeImage.alt}
               fill
               priority={activeIndex === 0}
               sizes="(max-width: 1024px) 100vw, 65vw"
@@ -622,56 +661,62 @@ function ProjectGallery({
 
         {/* IMAGE COUNTER */}
 
-        <div className="absolute left-4 top-4 z-20 bg-[#25372b]/75 px-3 py-2 font-sans text-[10px] font-medium tracking-[0.15em] text-white backdrop-blur-sm">
+        <div className="absolute left-4 top-4 z-20 bg-[#25372b]/70 px-3 py-2 font-sans text-[10px] font-medium tracking-[0.15em] text-white backdrop-blur-sm">
           {String(activeIndex + 1).padStart(2, "0")} /{" "}
           {String(images.length).padStart(2, "0")}
         </div>
 
         {/* NAVIGATION */}
 
-        <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2">
-          <button
-            type="button"
-            onClick={previous}
-            aria-label="Previous project image"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-[#25372b]/75 text-white backdrop-blur-sm transition-colors hover:bg-[#25372b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <ChevronLeft size={19} strokeWidth={1.6} />
-          </button>
+        {images.length > 1 && (
+          <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2">
 
-          <button
-            type="button"
-            onClick={next}
-            aria-label="Next project image"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-[#25372b]/75 text-white backdrop-blur-sm transition-colors hover:bg-[#25372b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <ChevronRight size={19} strokeWidth={1.6} />
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={previous}
+              aria-label="Previous project image"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-[#25372b]/70 text-white backdrop-blur-sm transition-colors duration-300 hover:bg-[#25372b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <ChevronLeft size={18} strokeWidth={1.6} />
+            </button>
+
+            <button
+              type="button"
+              onClick={next}
+              aria-label="Next project image"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-[#25372b]/70 text-white backdrop-blur-sm transition-colors duration-300 hover:bg-[#25372b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <ChevronRight size={18} strokeWidth={1.6} />
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* PAGINATION */}
+      {/* MINIMAL SLIDE INDICATOR */}
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between gap-4">
+
         <div className="flex items-center gap-2">
           {images.map((image, index) => (
             <button
               key={image.src}
               type="button"
-              onClick={() => setActiveIndex(index)}
+              onClick={() => {
+                changeSlide(index, index > activeIndex ? 1 : -1);
+              }}
               aria-label={`Show project image ${index + 1}`}
               aria-current={activeIndex === index ? "true" : undefined}
-              className={`h-[3px] transition-all duration-300 ${
+              className={`h-[3px] transition-all duration-500 ${
                 activeIndex === index
                   ? "w-9 bg-[#71836a]"
-                  : "w-5 bg-[#25372b]/20 hover:bg-[#25372b]/50"
+                  : "w-5 bg-[#25372b]/20 hover:bg-[#25372b]/45"
               }`}
             />
           ))}
         </div>
 
-        <span className="font-sans text-[10px] font-medium uppercase tracking-[0.13em] text-[#85877d]">
-          {isPaused ? "PAUSED" : "EXPLORE PROJECT"}
+        <span className="font-sans text-[9px] font-medium uppercase tracking-[0.13em] text-[#85877d]">
+          {isPaused ? "PAUSED" : "EXPLORE"}
         </span>
       </div>
     </div>
@@ -694,6 +739,10 @@ function BeforeAfter({
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
 
+  /* ------------------------------------------------------------------------ */
+  /* UPDATE SLIDER POSITION                                                   */
+  /* ------------------------------------------------------------------------ */
+
   const updatePosition = (clientX: number) => {
     const container = containerRef.current;
 
@@ -701,29 +750,45 @@ function BeforeAfter({
 
     const rect = container.getBoundingClientRect();
 
+    if (rect.width === 0) return;
+
     const nextPosition =
       ((clientX - rect.left) / rect.width) * 100;
 
     setPosition(Math.min(100, Math.max(0, nextPosition)));
   };
 
+  /* ------------------------------------------------------------------------ */
+  /* POINTER EVENTS                                                           */
+  /* ------------------------------------------------------------------------ */
+
   const handlePointerDown = (
-    event: React.PointerEvent<HTMLDivElement>
+    event: PointerEvent<HTMLDivElement>
   ) => {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
     event.currentTarget.setPointerCapture(event.pointerId);
     updatePosition(event.clientX);
   };
 
   const handlePointerMove = (
-    event: React.PointerEvent<HTMLDivElement>
+    event: PointerEvent<HTMLDivElement>
   ) => {
-    if (event.buttons !== 1) return;
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
+      return;
+    }
 
     updatePosition(event.clientX);
   };
 
+  /* ------------------------------------------------------------------------ */
+  /* KEYBOARD ACCESSIBILITY                                                   */
+  /* ------------------------------------------------------------------------ */
+
   const handleKeyDown = (
-    event: React.KeyboardEvent<HTMLDivElement>
+    event: KeyboardEvent<HTMLDivElement>
   ) => {
     let nextPosition = position;
 
@@ -754,6 +819,10 @@ function BeforeAfter({
     setPosition(Math.min(100, Math.max(0, nextPosition)));
   };
 
+  /* ------------------------------------------------------------------------ */
+  /* RENDER                                                                   */
+  /* ------------------------------------------------------------------------ */
+
   return (
     <div className="relative">
       <div
@@ -770,6 +839,7 @@ function BeforeAfter({
         aria-valuetext={`${Math.round(position)} percent showing the original garden`}
         tabIndex={0}
       >
+
         {/* COMPLETED GARDEN */}
 
         <Image
@@ -784,32 +854,32 @@ function BeforeAfter({
         {/* ORIGINAL GARDEN */}
 
         <div
-          className="absolute inset-y-0 left-0 overflow-hidden"
-          style={{ width: `${position}%` }}
+          className="pointer-events-none absolute inset-0"
+          style={{
+            clipPath: `inset(0 ${100 - position}% 0 0)`,
+          }}
         >
-          <div className="relative h-full w-[100vw]">
-            <Image
-              src={before}
-              alt=""
-              fill
-              sizes="(max-width: 640px) 100vw, 90vw"
-              className="pointer-events-none object-cover"
-            />
-          </div>
+          <Image
+            src={before}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, 90vw"
+            className="object-cover"
+          />
         </div>
 
         {/* DIVIDER */}
 
         <div
-          className="absolute inset-y-0 z-10 w-px bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)]"
+          className="pointer-events-none absolute inset-y-0 z-10 w-px bg-white shadow-[0_0_10px_rgba(0,0,0,0.2)]"
           style={{ left: `${position}%` }}
           aria-hidden="true"
         />
 
-        {/* SLIDER CONTROL */}
+        {/* SLIDER HANDLE */}
 
         <div
-          className="absolute top-1/2 z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-[#25372b]/85 text-white shadow-lg backdrop-blur-sm"
+          className="pointer-events-none absolute top-1/2 z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/80 bg-[#25372b]/85 text-white shadow-lg backdrop-blur-sm"
           style={{ left: `${position}%` }}
           aria-hidden="true"
         >
